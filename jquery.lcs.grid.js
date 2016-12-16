@@ -1,6 +1,6 @@
 /*! 
  * jQuery LCSgrid v1.0.0 - 23/05/2016
- * Copyright (c) 2016 Lesliê Cardoso da Silva (http://www.jquery-lcsgrid.com)
+ * Copyright (c) 2016 Lesliê Cardoso da Silva (leslie.cs@live.com)
  * Licensed under MIT http://www.opensource.org/licenses/MIT
  */
 ; (function ($, window, undefined) {
@@ -35,17 +35,22 @@
         this.options.action = this.options.actions;
 
         post = ($.isFunction(post)) ? post() : post;
-        return this.options.requestHandler($.extend(true, request, post));
+
+        this.params = this.options.requestHandler.call(this);
+
+        return $.extend(true, request, post, this.params);
     }
 
     function replaceVal() {
         var that = this;
 
+        
         $.each(this.options.ajaxSettings.data.params, function (f, val) {
             if (val != '') {
                 var field = f.split('.');
                 field = (field.length == 1) ? field[0] : field[1];
 
+                //console.log(field);
                 if (that.options.ajaxSettings.data[field]) {
                     that.options.ajaxSettings.data[field] = val;
                 }
@@ -286,7 +291,7 @@
             });
             */
             //console.log($(f).'data-ajax'));
-            ul.append($("<li></li>").append($("<a href='ctrl.php?'></a>").attr(f).addClass('lcs-action')));
+            ul.append($("<li></li>").append($("<a href='#'></a>").attr(f).addClass('lcs-action')));
             //alert(f.toSource());
         });
 
@@ -335,23 +340,26 @@
 
         var $action = this;
         var id = $(this).closest('tr').attr('id');
-        var $span = $(this).closest('tr').find('td:first span.lcs-hidden');
+        //var $span = $(this).closest('tr').find('td:first span.lcs-hidden');
         var $data = { 'controller': $(this).data('controller'), 'method': $(this).data('method') };
         var $option = []
 
         $option = new Object;
+
         $.each(that.data[id], function (i, $p) {
             if ($p.value) {
                 $option[$p.field] = $p.value;
             }
         });
 
+        $option = $.extend({}, $option, that.params);
 
         $.ajax({
             url: "ctrl.php",
             data: $.extend(true, {}, $data, $option),
             type: 'get',
-            success: function (json) {
+            success: function (json)
+            {
                 if ((typeof json) == 'string' && $($action).data('ajax') == undefined) {
                     window.location = json;
                 }
@@ -465,9 +473,14 @@
             $('#' + id).html(object);
         }
 
+        if ($(button).data('refresh') == true && action == 'success') {
+            this.header.find('a.lcs-pager-refresh').trigger('click');
+        }
+
         if ($(button).data('remove') == true && action == 'success') {
             $(button).closest('tr').remove();
         }
+       
 
         this.element.find('.lcs-grid-content').removeClass('lcs-grid-loading');
         this.element.find('div.lcs-grid-content table').css({ 'visibility': 'visible' });
@@ -487,8 +500,6 @@
 
         if (this.options.ajax) {
             var request = getRequest.call(this), url = getUrl.call(this);
-
-            ////alert("LCS: " + b.toSource());
 
             if (url == null || typeof url !== "string" || url.length === 0) {
                 throw new Error("Url setting must be a none empty string or a function that returns one.");
@@ -580,6 +591,7 @@
         this.id = $(element).attr('id');
         this.options = $.extend(true, {}, Grid.defaults, this.element.data(), options);
         this.request;
+        this.params;
         this.page_count = 0;
         this.page_current = 1;
         this.record_first = 0;
@@ -676,7 +688,7 @@
         var args = Array.prototype.slice.call(arguments, 1),
             returnValue = null,
             elements = this.each(function (index) {
-                console.log(namespace);
+
                 var $this = $(this),
                     instance = $this.data(namespace),
                     options = typeof option === "object" && option;
@@ -685,7 +697,6 @@
                     return;
                 }
                 if (!instance) {
-                    console.log("Teste");
                     $this.data(namespace, (instance = new Grid(this, options)));
                     init.call(instance);
                 }
