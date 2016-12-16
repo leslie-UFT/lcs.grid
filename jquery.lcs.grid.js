@@ -647,40 +647,6 @@
         }
     };
 
-    $.fn.extend({
-        _bgAria: function (name, value) {
-            return (value) ? this.attr("aria-" + name, value) : this.attr("aria-" + name);
-        },
-
-        _bgBusyAria: function (busy) {
-            return (busy == null || busy) ? this._bgAria("busy", "true") : this._bgAria("busy", "false");
-        },
-
-        _bgRemoveAria: function (name) {
-            return this.removeAttr("aria-" + name);
-        },
-
-        _bgEnableAria: function (enable) {
-            return (enable == null || enable) ? this.removeClass("disabled")._bgAria("disabled", "false") : this.addClass("disabled")._bgAria("disabled", "true");
-        },
-
-        _bgEnableField: function (enable) {
-            return (enable == null || enable) ? this.removeAttr("disabled") : this.attr("disabled", "disable");
-        },
-
-        _bgShowAria: function (show) {
-            return (show == null || show) ? this.show()._bgAria("hidden", "false") : this.hide()._bgAria("hidden", "true");
-        },
-
-        _bgSelectAria: function (select) {
-            return (select == null || select) ? this.addClass("active")._bgAria("selected", "true") : this.removeClass("active")._bgAria("selected", "false");
-        },
-
-        _bgId: function (id) {
-            return (id) ? this.attr("id", id) : this.attr("id");
-        }
-    });
-
     //var old = $.fn.lcsgrid;
 
     $.fn.lcsgrid = function (option) {
